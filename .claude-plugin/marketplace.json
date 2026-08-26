@@ -1,66 +1,20 @@
 {
-  "name": "PowerSkills",
-  "version": "1.0.0",
-  "description": "Master orchestration layer with persistent memory, adaptive model switching, phase-level token budget estimation, log analysis, auto-troubleshooting, and deduplication-aware skill delegation. Entry point for all complex requests.",
-  "author": {
+  "name": "powerskills-marketplace",
+  "description": "PowerSkills plugin marketplace - Master orchestration with persistent memory and adaptive models",
+  "owner": {
     "name": "vyshvs",
-    "url": "https://github.com/vyshvs"
+    "email": "vyshvs@users.noreply.github.com"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/vyshvs/Powerskills-orchestrator.git"
-  },
-  "license": "MIT",
-  "homepage": "https://github.com/vyshvs/Powerskills-orchestrator",
-  "keywords": [
-    "orchestration",
-    "memory",
-    "adaptive-models",
-    "token-budget",
-    "verification",
-    "troubleshooting",
-    "automation",
-    "expert-protocol"
-  ],
-  "skills": [
+  "plugins": [
     {
-      "name": "powerskills-orchestrator",
-      "description": "Use for ANY non-trivial request: orchestrates persistent memory read/write, adaptive model switching, token budget estimation, deduplication-aware skill routing, log analysis with auto-troubleshooting, and enforces the Expert Implementation Protocol. Activates on coding, architecture, document creation, research, data, scheduling, frontend, and debugging tasks.",
-      "path": "skills/powerskills-orchestrator"
-    },
-    {
-      "name": "memory-manager",
-      "description": "Manages persistent project memory — project structure tracking and implementation history. Delegates to memory-writer agent (Haiku 4.5).",
-      "path": "skills/memory-manager"
-    },
-    {
-      "name": "token-budget-estimator",
-      "description": "Use during phased execution to track token consumption per phase and warn before context window exhaustion",
-      "path": "skills/token-budget-estimator"
-    },
-    {
-      "name": "output-verifier",
-      "description": "Use after any code execution, build, or output generation to analyze logs, detect failures, troubleshoot, and rerun until working",
-      "path": "skills/output-verifier"
+      "name": "PowerSkills",
+      "description": "Master orchestration layer with persistent memory, adaptive model switching, phase-level token budget estimation, log analysis, auto-troubleshooting, and deduplication-aware skill delegation. Entry point for all complex requests.",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "vyshvs",
+        "email": "vyshvs@users.noreply.github.com"
+      }
     }
-  ],
-  "agents": [
-    {
-      "name": "memory-writer",
-      "description": "Manages persistent project memory — project structure tracking and implementation history. Uses Claude Haiku 4.5 exclusively.",
-      "path": "agents/memory-writer.md"
-    }
-  ],
-  "features": [
-    "7-gate implementation protocol",
-    "Persistent memory system",
-    "Adaptive model selection (Haiku/Sonnet/Opus)",
-    "Token budget tracking with warnings",
-    "Auto-troubleshooting verification loop",
-    "Deduplication registry",
-    "Expert role declaration"
-  ],
-  "requirements": {
-    "claudeVersion": ">=5.0.0"
-  }
+  ]
 }
