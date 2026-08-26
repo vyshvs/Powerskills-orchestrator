@@ -1,0 +1,10 @@
+{
+  "name": "PowerSkills",
+  "version": "1.0.0",
+  "description": "Master orchestration layer with persistent memory, adaptive model switching, phase-level token budget estimation, log analysis, auto-troubleshooting, and deduplication-aware skill delegation. Entry point for all complex requests.",
+  "author": {
+    "name": "vyshvs"
+  },
+  "repository": "https://github.com/vyshvs/Powerskills-orchestrator",
+  "keywords": ["orchestration", "memory", "adaptive-models", "token-budget", "verification", "troubleshooting"]
+}
