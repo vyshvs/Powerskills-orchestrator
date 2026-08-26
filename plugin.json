@@ -1,0 +1,18 @@
+{
+  "name": "PowerSkills",
+  "version": "1.0.0",
+  "description": "Master orchestration layer with persistent memory, adaptive model switching, phase-level token budget estimation, log analysis, auto-troubleshooting, and deduplication-aware skill delegation. Entry point for all complex requests.",
+  "author": {
+    "name": "vyshvs"
+  },
+  "license": "MIT",
+  "skills": [
+    "skills/powerskills-orchestrator",
+    "skills/memory-manager",
+    "skills/token-budget-estimator",
+    "skills/output-verifier"
+  ],
+  "agents": [
+    "agents/memory-writer.md"
+  ]
+}
