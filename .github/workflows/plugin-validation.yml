@@ -1,0 +1,270 @@
+name: Plugin Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '.claude-plugin/**'
+      - 'agents/**'
+      - 'skills/**'
+      - 'commands/**'
+      - 'package.json'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.claude-plugin/**'
+      - 'agents/**'
+      - 'skills/**'
+      - 'commands/**'
+      - 'package.json'
+
+jobs:
+  validate-plugin:
+    name: Validate Plugin Structure
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+
+    - name: Run plugin validator
+      run: npm run validate
+
+    - name: Validate plugin.json
+      run: |
+        echo "## Plugin Validation Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Check plugin.json structure
+        PLUGIN_NAME=$(node -e "console.log(require('./.claude-plugin/plugin.json').name)")
+        PLUGIN_VERSION=$(node -e "console.log(require('./.claude-plugin/plugin.json').version)")
+
+        echo "**Plugin Name:** $PLUGIN_NAME" >> $GITHUB_STEP_SUMMARY
+        echo "**Version:** $PLUGIN_VERSION" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Validate kebab-case naming
+        if echo "$PLUGIN_NAME" | grep -qE '^[a-z0-9]+(-[a-z0-9]+)*$'; then
+          echo "✅ Plugin name follows kebab-case convention" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Plugin name must be kebab-case (lowercase with hyphens)" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+    - name: Validate marketplace.json
+      run: |
+        # Check marketplace.json structure
+        MARKETPLACE_NAME=$(node -e "console.log(require('./.claude-plugin/marketplace.json').name)")
+        PLUGIN_COUNT=$(node -e "console.log(require('./.claude-plugin/marketplace.json').plugins.length)")
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Marketplace Name:** $MARKETPLACE_NAME" >> $GITHUB_STEP_SUMMARY
+        echo "**Plugins Listed:** $PLUGIN_COUNT" >> $GITHUB_STEP_SUMMARY
+
+    - name: Validate agent templates
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Agent Templates" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        AGENT_COUNT=0
+        AGENTS_WITH_FRONTMATTER=0
+
+        # Count agents and check frontmatter
+        for agent in agents/*.md; do
+          if [ -f "$agent" ]; then
+            AGENT_COUNT=$((AGENT_COUNT + 1))
+
+            # Check for frontmatter
+            if head -n 1 "$agent" | grep -q "^---$"; then
+              AGENTS_WITH_FRONTMATTER=$((AGENTS_WITH_FRONTMATTER + 1))
+            fi
+          fi
+        done
+
+        echo "**Total Agents:** $AGENT_COUNT" >> $GITHUB_STEP_SUMMARY
+        echo "**With Frontmatter:** $AGENTS_WITH_FRONTMATTER" >> $GITHUB_STEP_SUMMARY
+
+        if [ $AGENT_COUNT -eq $AGENTS_WITH_FRONTMATTER ]; then
+          echo "✅ All agents have valid frontmatter" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Some agents missing frontmatter" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Validate skills
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Skills" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        SKILL_COUNT=0
+        SKILLS_WITH_FRONTMATTER=0
+
+        # Count skills and check frontmatter
+        for skill in skills/*.md; do
+          if [ -f "$skill" ]; then
+            SKILL_COUNT=$((SKILL_COUNT + 1))
+
+            # Check for frontmatter
+            if head -n 1 "$skill" | grep -q "^---$"; then
+              SKILLS_WITH_FRONTMATTER=$((SKILLS_WITH_FRONTMATTER + 1))
+            fi
+          fi
+        done
+
+        echo "**Total Skills:** $SKILL_COUNT" >> $GITHUB_STEP_SUMMARY
+        echo "**With Frontmatter:** $SKILLS_WITH_FRONTMATTER" >> $GITHUB_STEP_SUMMARY
+
+        if [ $SKILL_COUNT -eq $SKILLS_WITH_FRONTMATTER ]; then
+          echo "✅ All skills have valid frontmatter" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Some skills missing frontmatter" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Validate commands
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Commands" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        COMMAND_COUNT=0
+
+        # Count commands
+        for cmd in commands/*.md; do
+          if [ -f "$cmd" ]; then
+            COMMAND_COUNT=$((COMMAND_COUNT + 1))
+          fi
+        done
+
+        echo "**Total Commands:** $COMMAND_COUNT" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Commands validated" >> $GITHUB_STEP_SUMMARY
+
+    - name: Version consistency check
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Version Consistency" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Get versions from all sources
+        PKG_VERSION=$(node -e "console.log(require('./package.json').version)")
+        PLUGIN_VERSION=$(node -e "console.log(require('./.claude-plugin/plugin.json').version)")
+        MARKETPLACE_VERSION=$(node -e "console.log(require('./.claude-plugin/marketplace.json').metadata.version)")
+
+        echo "**package.json:** $PKG_VERSION" >> $GITHUB_STEP_SUMMARY
+        echo "**plugin.json:** $PLUGIN_VERSION" >> $GITHUB_STEP_SUMMARY
+        echo "**marketplace.json:** $MARKETPLACE_VERSION" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Check if all versions match
+        if [ "$PKG_VERSION" = "$PLUGIN_VERSION" ] && [ "$PKG_VERSION" = "$MARKETPLACE_VERSION" ]; then
+          echo "✅ All versions are consistent" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Version mismatch detected" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+  validate-structure:
+    name: Validate File Structure
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check required directories
+      run: |
+        echo "## Directory Structure" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        REQUIRED_DIRS=(".claude-plugin" "agents" "skills" "commands" "core" "test" "scripts")
+        ALL_PRESENT=true
+
+        for dir in "${REQUIRED_DIRS[@]}"; do
+          if [ -d "$dir" ]; then
+            echo "✅ $dir/" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ $dir/ (missing)" >> $GITHUB_STEP_SUMMARY
+            ALL_PRESENT=false
+          fi
+        done
+
+        if [ "$ALL_PRESENT" = false ]; then
+          exit 1
+        fi
+
+    - name: Check required files
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Required Files" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        REQUIRED_FILES=(
+          "index.js"
+          "package.json"
+          "README.md"
+          ".claude-plugin/plugin.json"
+          ".claude-plugin/marketplace.json"
+          "scripts/validate-plugin.js"
+          "test/test-suite.js"
+        )
+
+        ALL_PRESENT=true
+
+        for file in "${REQUIRED_FILES[@]}"; do
+          if [ -f "$file" ]; then
+            echo "✅ $file" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ $file (missing)" >> $GITHUB_STEP_SUMMARY
+            ALL_PRESENT=false
+          fi
+        done
+
+        if [ "$ALL_PRESENT" = false ]; then
+          exit 1
+        fi
+
+  validate-json-syntax:
+    name: Validate JSON Syntax
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+
+    - name: Validate all JSON files
+      run: |
+        echo "## JSON Validation" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        JSON_FILES=$(find . -name "*.json" -not -path "./node_modules/*" -not -path "./.git/*")
+        VALID_COUNT=0
+        INVALID_COUNT=0
+
+        for json_file in $JSON_FILES; do
+          if node -e "JSON.parse(require('fs').readFileSync('$json_file', 'utf8'))" 2>/dev/null; then
+            VALID_COUNT=$((VALID_COUNT + 1))
+          else
+            echo "❌ $json_file (invalid syntax)" >> $GITHUB_STEP_SUMMARY
+            INVALID_COUNT=$((INVALID_COUNT + 1))
+          fi
+        done
+
+        echo "**Valid JSON Files:** $VALID_COUNT" >> $GITHUB_STEP_SUMMARY
+        echo "**Invalid JSON Files:** $INVALID_COUNT" >> $GITHUB_STEP_SUMMARY
+
+        if [ $INVALID_COUNT -gt 0 ]; then
+          exit 1
+        else
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All JSON files have valid syntax" >> $GITHUB_STEP_SUMMARY
+        fi
