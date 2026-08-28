@@ -1,6 +1,7 @@
 {
   "name": "powerskills-marketplace",
-  "description": "PowerSkills plugin marketplace - Master orchestration with persistent memory and adaptive models",
+  "description": "PowerSkills plugin marketplace - Advanced memory orchestration with global sub-agents",
+  "version": "2.1.0",
   "owner": {
     "name": "vyshvs",
     "email": "vyshvs@users.noreply.github.com"
@@ -8,8 +9,8 @@
   "plugins": [
     {
       "name": "PowerSkills Memory Orchestrator",
-      "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity. Features: persistent memory, parallel/sequential/pipeline execution, workflow engine, session management, and cross-platform abstraction.",
-      "version": "2.0.1",
+      "description": "Advanced plugin with global memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity. Features: persistent memory, parallel/sequential/pipeline execution, workflow engine, session management, and cross-platform abstraction.",
+      "version": "2.1.0",
       "source": "./",
       "author": {
         "name": "vyshvs",

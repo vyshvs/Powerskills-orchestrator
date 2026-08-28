@@ -1,6 +1,6 @@
 {
   "name": "powerskills-memory-orchestrator",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end, compatible with OpenAI, Claude, and Antigravity",
   "main": "index.js",
   "scripts": {
