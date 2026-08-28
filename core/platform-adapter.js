@@ -116,15 +116,15 @@ class PlatformAdapter {
 
   async makeRequest(url, method, headers, body) {
     // In production, this would use fetch or axios
-    // For now, return a mock response structure
+    // For now, return a mock response structure WITHOUT sensitive data
     return {
       success: true,
       platform: this.detectPlatform(url),
       data: {
         id: `req_${Date.now()}`,
         timestamp: Date.now(),
-        response: body,
-        url,
+        // Don't include full body which may contain API keys
+        url: url.replace(/\/\/[^@]+@/, '//***@'), // Mask credentials in URL
         method
       }
     };
@@ -209,9 +209,40 @@ class PlatformAdapter {
       throw new Error(`Platform ${platform} not found`);
     }
 
+    // Validate config to prevent injection
+    const validatedConfig = {};
+
+    if (config.enabled !== undefined) {
+      if (typeof config.enabled !== 'boolean') {
+        throw new Error('enabled must be a boolean');
+      }
+      validatedConfig.enabled = config.enabled;
+    }
+
+    if (config.apiKey !== undefined) {
+      if (typeof config.apiKey !== 'string') {
+        throw new Error('apiKey must be a string');
+      }
+      validatedConfig.apiKey = config.apiKey;
+    }
+
+    if (config.baseUrl !== undefined) {
+      if (typeof config.baseUrl !== 'string') {
+        throw new Error('baseUrl must be a string');
+      }
+      validatedConfig.baseUrl = config.baseUrl;
+    }
+
+    if (config.defaultModel !== undefined) {
+      if (typeof config.defaultModel !== 'string') {
+        throw new Error('defaultModel must be a string');
+      }
+      validatedConfig.defaultModel = config.defaultModel;
+    }
+
     this.platforms[platform] = {
       ...this.platforms[platform],
-      ...config
+      ...validatedConfig
     };
 
     return this.platforms[platform];

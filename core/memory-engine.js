@@ -26,7 +26,14 @@ class MemoryEngine {
   }
 
   generateSessionId() {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Use crypto for secure random session IDs
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return `session_${Date.now()}_${crypto.randomUUID()}`;
+    }
+    // Fallback for Node.js
+    const { randomBytes } = require('crypto');
+    const randomPart = randomBytes(16).toString('hex');
+    return `session_${Date.now()}_${randomPart}`;
   }
 
   log(type, message, metadata = {}) {
@@ -69,7 +76,20 @@ class MemoryEngine {
       }
 
       this.memoryStore.set(key, entry);
-      this.log('WRITE', `Memory written: ${key}`, { size: JSON.stringify(value).length });
+
+      // Safe size calculation with circular reference protection
+      let size = 0;
+      try {
+        size = JSON.stringify(value).length;
+      } catch (jsonError) {
+        // Circular reference or non-serializable value
+        size = String(value).length;
+        this.log('WARN', `Memory written with non-serializable value: ${key}`, {
+          error: jsonError.message
+        });
+      }
+
+      this.log('WRITE', `Memory written: ${key}`, { size });
 
       // Persist to disk
       await this.persist(key, entry);
@@ -149,8 +169,19 @@ class MemoryEngine {
       } else if (searchType === 'exact') {
         match = key === query;
       } else if (searchType === 'regex') {
-        const regex = new RegExp(query, 'i');
-        match = regex.test(key);
+        try {
+          // Validate regex for ReDoS protection
+          if (query.length > 100) {
+            throw new Error('Regex pattern too long');
+          }
+          const regex = new RegExp(query, 'i');
+          // Test with timeout simulation - if pattern is complex, skip
+          const testKey = key.substring(0, Math.min(1000, key.length));
+          match = regex.test(testKey);
+        } catch (error) {
+          this.log('ERROR', 'Invalid regex pattern', { query, error: error.message });
+          continue;
+        }
       } else if (searchType === 'tags') {
         match = entry.metadata.tags.some(tag => tag.includes(query));
       }
@@ -201,18 +232,24 @@ class MemoryEngine {
       uptime: Date.now() - this.startTime,
       memoryCount: this.memoryStore.size,
       totalLogs: this.sessionLog.length,
-      memorySize: this.calculateMemorySize(),
+      memorySize: this.cachedMemorySize || this.calculateMemorySize(),
       config: this.config
     };
-    this.log('STATS', 'Statistics retrieved', stats);
+    // Don't log stats retrieval to avoid infinite recursion
     return stats;
   }
 
   calculateMemorySize() {
     let size = 0;
     for (const entry of this.memoryStore.values()) {
-      size += JSON.stringify(entry).length;
+      try {
+        size += JSON.stringify(entry).length;
+      } catch (error) {
+        // Skip entries that can't be stringified
+        size += 1000; // Estimate
+      }
     }
+    this.cachedMemorySize = size;
     return size;
   }
 

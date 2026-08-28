@@ -13,7 +13,7 @@ class PowerSkillsPlugin {
   constructor(config = {}) {
     this.config = {
       name: 'PowerSkills Memory Orchestrator',
-      version: '1.0.0',
+      version: '2.1.0',
       ...config
     };
 
@@ -23,15 +23,14 @@ class PowerSkillsPlugin {
     this.orchestrator = new SubAgentOrchestrator(this.memoryEngine, config.orchestrator || {});
     this.updateManager = new UpdateManager({
       repository: 'https://api.github.com/repos/vyshvs/Powerskills-orchestrator',
-      currentVersion: this.config.version || '2.1.0',
+      currentVersion: this.config.version,
       autoUpdate: config.autoUpdate !== false
     });
 
     // Session management
     this.sessionActive = false;
     this.sessionData = null;
-
-    this.initialize();
+    this.initPromise = this.initialize();
   }
 
   async initialize() {
@@ -172,7 +171,12 @@ class PowerSkillsPlugin {
   // ============= WORKFLOW OPERATIONS =============
 
   async executeWorkflow(workflow) {
-    this.ensureSessionActive();
+    try {
+      this.ensureSessionActive();
+    } catch (error) {
+      this.memoryEngine.log('WORKFLOW_ERROR', 'Session not active', { workflow: workflow.name });
+      throw error;
+    }
 
     const workflowId = this.generateWorkflowId();
     const startTime = Date.now();
@@ -202,7 +206,15 @@ class PowerSkillsPlugin {
         results.push(stepResult);
 
         // Update context for next step
-        if (step.updateContext) {
+        if (step.updateContext && stepResult.output) {
+          // Merge output into context, but limit context growth
+          const newContextKeys = Object.keys(stepResult.output);
+          if (Object.keys(currentContext).length + newContextKeys.length > 1000) {
+            this.memoryEngine.log('WORKFLOW_WARN', 'Context size limit approaching', {
+              workflowId,
+              currentSize: Object.keys(currentContext).length
+            });
+          }
           currentContext = { ...currentContext, ...stepResult.output };
         }
       }
@@ -291,6 +303,12 @@ class PowerSkillsPlugin {
           result = await this.readMemory(step.key, step.options);
         } else if (step.operation === 'search') {
           result = await this.searchMemory(step.query, step.options);
+        } else if (step.operation === 'delete') {
+          result = await this.deleteMemory(step.key);
+        } else if (step.operation === 'clear') {
+          result = await this.clearMemory(step.filter || {});
+        } else {
+          throw new Error(`Unknown memory operation: ${step.operation}`);
         }
         break;
 

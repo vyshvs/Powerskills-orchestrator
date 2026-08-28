@@ -10,6 +10,7 @@ class SubAgentOrchestrator {
     this.agents = new Map();
     this.taskQueue = [];
     this.activeAgents = new Set();
+    this.waitingQueue = []; // Promise queue for agents waiting for slots
     this.config = {
       maxConcurrentAgents: config.maxConcurrentAgents || 10,
       defaultTimeout: config.defaultTimeout || 300000, // 5 minutes
@@ -18,6 +19,21 @@ class SubAgentOrchestrator {
       ...config
     };
     this.executionHistory = [];
+  }
+
+  async waitForAvailableSlot() {
+    // Promise-based queue instead of busy-wait
+    return new Promise((resolve) => {
+      this.waitingQueue.push(resolve);
+    });
+  }
+
+  releaseSlot() {
+    // Release next waiting agent
+    if (this.waitingQueue.length > 0) {
+      const resolve = this.waitingQueue.shift();
+      resolve();
+    }
   }
 
   async createAgent(agentConfig) {
@@ -53,9 +69,9 @@ class SubAgentOrchestrator {
       throw new Error(`Agent not found: ${agentId}`);
     }
 
-    // Wait if max concurrent agents reached
-    while (this.activeAgents.size >= this.config.maxConcurrentAgents) {
-      await this.sleep(100);
+    // Wait if max concurrent agents reached using Promise-based queue
+    if (this.activeAgents.size >= this.config.maxConcurrentAgents) {
+      await this.waitForAvailableSlot();
     }
 
     this.activeAgents.add(agentId);
@@ -107,6 +123,7 @@ class SubAgentOrchestrator {
       });
 
       this.activeAgents.delete(agentId);
+      this.releaseSlot(); // Release slot for waiting agents
       return result;
 
     } catch (error) {
@@ -129,6 +146,7 @@ class SubAgentOrchestrator {
       });
 
       this.activeAgents.delete(agentId);
+      this.releaseSlot(); // Release slot even on error
       throw error;
     }
   }
@@ -306,7 +324,15 @@ class SubAgentOrchestrator {
 
       const result = await this.executeTask(agentId, task);
       pipelineResults.push(result);
-      currentData = result.output;
+
+      // Extract data from nested output structure
+      if (result.output && result.output.data) {
+        currentData = result.output.data;
+      } else if (result.output) {
+        currentData = result.output;
+      } else {
+        currentData = result;
+      }
     }
 
     this.memoryEngine.log('PIPELINE_COMPLETE', 'Pipeline execution completed', {

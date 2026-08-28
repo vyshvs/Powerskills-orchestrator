@@ -61,9 +61,15 @@ class UpdateManager {
     const latestParts = latest.replace('v', '').split('.').map(Number);
     const currentParts = current.replace('v', '').split('.').map(Number);
 
-    for (let i = 0; i < 3; i++) {
-      if (latestParts[i] > currentParts[i]) return true;
-      if (latestParts[i] < currentParts[i]) return false;
+    // Compare all parts, not just first 3
+    const maxLength = Math.max(latestParts.length, currentParts.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      const latestPart = latestParts[i] || 0;
+      const currentPart = currentParts[i] || 0;
+
+      if (latestPart > currentPart) return true;
+      if (latestPart < currentPart) return false;
     }
 
     return false;
@@ -127,6 +133,11 @@ class UpdateManager {
 
   startAutoUpdateCheck() {
     if (!this.autoUpdate) return;
+
+    // Clear any existing interval first
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
 
     this.updateInterval = setInterval(async () => {
       const updateCheck = await this.checkForUpdates();
