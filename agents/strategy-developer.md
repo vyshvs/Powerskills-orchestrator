@@ -1,10 +1,10 @@
 ---
-name: Strategy Developer
-description: undefined
+name: strategy-developer
+description: Trading strategy development and optimization specialist
 model: claude-opus-5
 ---
 
-# Strategy Developer
+# strategy-developer
 
 undefined
 

@@ -1,10 +1,10 @@
 ---
-name: Portfolio Manager
-description: undefined
+name: portfolio-manager
+description: Portfolio construction and risk optimization specialist
 model: claude-opus-5
 ---
 
-# Portfolio Manager
+# portfolio-manager
 
 undefined
 

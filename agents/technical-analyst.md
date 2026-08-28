@@ -1,10 +1,10 @@
 ---
-name: Technical Analyst
-description: undefined
+name: technical-analyst
+description: Technical analysis and chart pattern recognition specialist
 model: claude-sonnet-5
 ---
 
-# Technical Analyst
+# technical-analyst
 
 undefined
 

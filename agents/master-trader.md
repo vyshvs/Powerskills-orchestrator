@@ -1,10 +1,10 @@
 ---
-name: Master Trader
-description: undefined
+name: master-trader
+description: Master trading orchestrator and decision synthesizer
 model: claude-opus-5
 ---
 
-# Master Trader
+# master-trader
 
 undefined
 

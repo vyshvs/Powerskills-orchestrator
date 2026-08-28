@@ -1,10 +1,10 @@
 ---
-name: Risk Manager
-description: undefined
+name: risk-manager
+description: Risk assessment and portfolio protection specialist
 model: claude-sonnet-5
 ---
 
-# Risk Manager
+# risk-manager
 
 undefined
 

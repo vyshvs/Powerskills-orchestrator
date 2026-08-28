@@ -1,10 +1,10 @@
 ---
-name: Market Analyst
-description: undefined
+name: market-analyst
+description: Market analysis and economic intelligence specialist
 model: claude-opus-5
 ---
 
-# Market Analyst
+# market-analyst
 
 undefined
 
