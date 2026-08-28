@@ -1,0 +1,22 @@
+# Reference materials (local only, may contain credentials)
+Ref/
+Reference/
+
+# Session memory (local only)
+Memory/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Node modules
+node_modules/
+
+# Test outputs
+coverage/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
