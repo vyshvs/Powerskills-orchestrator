@@ -22,7 +22,7 @@ class PowerSkillsPlugin {
   constructor(config = {}) {
     this.config = {
       name: 'PowerSkills Memory Orchestrator',
-      version: '3.4.0',
+      version: '3.5.0',
       ...config
     };
 
@@ -62,6 +62,12 @@ class PowerSkillsPlugin {
     const BacktestingEngine = require('./core/backtesting/backtesting-engine.js');
     this.marketDataFeed = new MarketDataFeed(this);
     this.backtestingEngine = new BacktestingEngine(this);
+
+    // Trading Execution Systems (Week 4 - Execution)
+    const MCPBrokerIntegration = require('./core/execution/mcp-broker-integration.js');
+    const ExecutionMonitor = require('./core/execution/execution-monitor.js');
+    this.mcpBrokerIntegration = new MCPBrokerIntegration(this);
+    this.executionMonitor = new ExecutionMonitor(this);
 
     // Session management
     this.sessionActive = false;
