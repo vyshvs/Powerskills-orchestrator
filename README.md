@@ -1,66 +1,34 @@
-# PowerSkills Memory Orchestrator v2.0.0
+# PowerSkills Memory Orchestrator v2.1.0
 
-## 🎯 Global Memory Agent - Always Active
+**Advanced plugin with memory reader/writer sub-agent that records everything from start to end**
 
-This plugin includes a **global memory agent** that runs in parallel with **every single request**. The agent is registered in your AI's Custom Agents settings and automatically tracks, stores, and retrieves memory for complete session continuity.
+[![Security Audit](https://img.shields.io/badge/Security-Hardened-green)](SECURITY_AUDIT.md)
+[![Tests](https://img.shields.io/badge/Tests-22%2F22%20Passing-brightgreen)](test/test-suite.js)
+[![Auto-Update](https://img.shields.io/badge/Auto--Update-Enabled-blue)](#auto-update)
+[![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-orange)](#)
 
 ---
 
-## ✨ Key Features
+## 🚀 Features
 
-### 🧠 Memory Engine
-- Read/write operations with metadata
-- Fuzzy, exact, regex, and tag-based search
-- Session recording with full audit trail
-- Export/import functionality
-- Compression and encryption support
+### Core Capabilities
+- **Memory Operations**: Write, read, search, delete with full metadata support
+- **Sub-Agent Orchestration**: Parallel, sequential, and pipeline execution modes
+- **Cross-Platform Support**: OpenAI, Claude, Antigravity compatible
+- **Session Management**: Complete session lifecycle with pause/resume
+- **Event System**: Real-time event emission for all operations
+- **Execution History**: Full audit trail of all operations
 
-### 🤖 Global Memory Agent
-- **Scope**: Global (runs with ALL requests)
-- **Model**: Claude Haiku 4.5 (exclusive)
-- **Behavior**: Parallel execution, non-blocking
-- **Status**: Always active (mandatory)
-- **Performance**: < 150ms overhead per request
+### 🔒 Security Hardened
+- ✅ **15 Critical Vulnerabilities Fixed** (see [Security Audit](SECURITY_AUDIT.md))
+- ✅ Cryptographically secure session IDs
+- ✅ ReDoS attack protection
+- ✅ API key leakage prevention
+- ✅ Input validation and type safety
+- ✅ Resource exhaustion protection
 
-### 📋 Mandatory Answering Rules
-
-For **EVERY** user request, the memory agent automatically:
-
-1. **Pre-Processing** (< 50ms)
-   - Loads previous context
-   - Retrieves user preferences
-   - Checks project state
-   - Finds relevant history
-
-2. **Active Tracking** (background)
-   - Tracks operations in real-time
-   - Logs decision points
-   - Records intermediate results
-   - Monitors for errors
-
-3. **Post-Processing** (< 100ms)
-   - Stores request/response pair
-   - Updates project state
-   - Tags with keywords
-   - Maintains session continuity
-
-### 🚀 Sub-Agent Orchestrator
-- Parallel, sequential, and pipeline execution
-- Up to 10 concurrent agents
-- Complete execution history
-- Worktree isolation support
-
-### 🌐 Cross-Platform Compatibility
-- **OpenAI**: GPT-4, GPT-4-Turbo, GPT-3.5-Turbo
-- **Claude**: Opus 5, Sonnet 5, Haiku 4.5
-- **Antigravity**: All models
-- Unified API across all platforms
-
-### 🔄 Workflow Engine
-- Multi-step workflows with context passing
-- Custom step execution
-- Mixed execution types
-- Error handling and recovery
+### 🔄 Auto-Update
+Plugin automatically checks GitHub for updates on startup and applies them immediately. Users get the latest security fixes and features the moment they trigger the plugin.
 
 ---
 
@@ -70,197 +38,507 @@ For **EVERY** user request, the memory agent automatically:
 npm install powerskills-memory-orchestrator
 ```
 
-Or install as a plugin in your AI environment.
+**Or clone from GitHub:**
+```bash
+git clone https://github.com/vyshvs/Powerskills-orchestrator.git
+cd Powerskills-orchestrator
+npm test
+```
 
 ---
 
-## 🎮 Quick Start
-
-### Basic Usage
+## 🎯 Quick Start
 
 ```javascript
 const PowerSkillsPlugin = require('powerskills-memory-orchestrator');
 
+// Initialize plugin with auto-update enabled (default)
 const plugin = new PowerSkillsPlugin({
-  platforms: {
-    claude: {
-      enabled: true,
-      apiKey: process.env.CLAUDE_API_KEY
-    }
+  autoUpdate: true,  // Auto-update on startup
+  memory: {
+    persistToDisk: true,
+    sessionTimeout: 3600000
   }
 });
 
-const api = plugin.getAPI();
+// Wait for initialization (includes auto-update check)
+await plugin.initPromise;
 
-// Memory operations
-await api.memory.write('user:123', { name: 'Alice' });
-const user = await api.memory.read('user:123');
+// Write to memory
+await plugin.writeMemory('user:preferences', {
+  theme: 'dark',
+  language: 'en'
+}, {
+  tags: ['user', 'settings'],
+  type: 'config'
+});
 
-// Agent operations
-const agentId = await api.agents.create({ name: 'Worker' });
-await api.agents.execute(agentId, {
-  description: 'Process data',
+// Read from memory
+const prefs = await plugin.readMemory('user:preferences');
+
+// Search memory
+const results = await plugin.searchMemory('theme', {
+  tags: ['settings']
+});
+
+// Create and execute agents
+const agentId = await plugin.createAgent({
+  name: 'DataProcessor',
+  type: 'worker'
+});
+
+const result = await plugin.executeTask(agentId, {
+  description: 'Process user data',
+  data: { userId: 123 }
+});
+```
+
+---
+
+## 🔧 API Reference
+
+### Memory Operations
+
+#### `writeMemory(key, value, options)`
+Store data in memory with metadata.
+
+```javascript
+await plugin.writeMemory('session:state', { step: 3 }, {
+  tags: ['session', 'workflow'],
+  type: 'state',
+  metadata: { userId: 'user123' }
+});
+```
+
+#### `readMemory(key, options)`
+Retrieve data from memory.
+
+```javascript
+const data = await plugin.readMemory('session:state', {
+  includeMetadata: true
+});
+```
+
+#### `searchMemory(query, options)`
+Search memory with regex patterns.
+
+```javascript
+const results = await plugin.searchMemory('session:', {
+  tags: ['workflow'],
+  limit: 10
+});
+```
+
+#### `deleteMemory(key)`
+Remove data from memory.
+
+```javascript
+await plugin.deleteMemory('session:state');
+```
+
+#### `clearMemory(filter)`
+Clear memory with optional filter.
+
+```javascript
+await plugin.clearMemory({
+  tags: ['temporary'],
+  olderThan: Date.now() - 3600000
+});
+```
+
+### Agent Operations
+
+#### `createAgent(config)`
+Create a new sub-agent.
+
+```javascript
+const agentId = await plugin.createAgent({
+  name: 'Processor',
+  type: 'worker',
   platform: 'claude'
 });
 ```
 
-### Global Memory Agent
+#### `executeTask(agentId, task)`
+Execute a task with an agent.
 
-The memory agent is **automatically active** once the plugin is installed:
-
+```javascript
+const result = await plugin.executeTask(agentId, {
+  description: 'Analyze data',
+  data: { input: 'data' },
+  platform: 'claude'
+});
 ```
-Custom Agents [1]
-└─ memory-writer [Global] 🟢
-   ├─ Manages persistent project memory
-   ├─ Project structure tracking
-   └─ Uses Claude Haiku 4.5 exclusively
+
+#### `parallelExecute(tasks)`
+Execute multiple tasks concurrently.
+
+```javascript
+const results = await plugin.parallelExecute([
+  { agentId: 'agent1', task: {...} },
+  { agentId: 'agent2', task: {...} }
+]);
 ```
 
-**No setup required** - it just works!
+#### `sequentialExecute(tasks)`
+Execute tasks in sequence.
+
+```javascript
+const results = await plugin.sequentialExecute([
+  { agentId: 'agent1', task: {...} },
+  { agentId: 'agent2', task: {...} }
+]);
+```
+
+#### `pipeline(stages, data)`
+Execute pipeline workflow.
+
+```javascript
+const result = await plugin.pipeline([
+  { name: 'Extract', description: 'Extract data' },
+  { name: 'Transform', description: 'Transform data' },
+  { name: 'Load', description: 'Load data' }
+], initialData);
+```
+
+### Platform Configuration
+
+#### `configurePlatform(platformName, config)`
+Configure AI platform credentials.
+
+```javascript
+await plugin.configurePlatform('claude', {
+  enabled: true,
+  apiKey: 'your-api-key',
+  baseUrl: 'https://api.anthropic.com',
+  defaultModel: 'claude-opus-5'
+});
+```
+
+### Workflow Operations
+
+#### `executeWorkflow(workflow)`
+Execute a complete workflow.
+
+```javascript
+const result = await plugin.executeWorkflow({
+  name: 'DataPipeline',
+  steps: [
+    { operation: 'memory', action: 'write', key: 'data', value: {...} },
+    { operation: 'agent', action: 'create', config: {...} },
+    { operation: 'agent', action: 'execute', agentId: 'agent1', task: {...} }
+  ]
+});
+```
+
+### Session Management
+
+#### `exportSession()`
+Export current session state.
+
+```javascript
+const sessionData = await plugin.exportSession();
+```
+
+#### `pauseSession()`
+Pause the current session.
+
+```javascript
+await plugin.pauseSession();
+```
+
+#### `resumeSession()`
+Resume a paused session.
+
+```javascript
+await plugin.resumeSession();
+```
+
+#### `endSession(summary)`
+End session with summary.
+
+```javascript
+await plugin.endSession({
+  completed: true,
+  stats: { operations: 42 }
+});
+```
 
 ---
 
-## 🔍 How the Memory Agent Works
+## 🧪 Testing
 
-### Every Request Flow
-
-```
-User: "Create a login component"
-
-[Memory Agent - Parallel]
-├─ Load: Previous project structure
-├─ Load: User's coding preferences  
-├─ Track: Operations during processing
-└─ Store: Component created + context
-
-[Main AI]
-└─ Creates the login component
-
-Result: Fast response + full context preserved
-```
-
-### User Commands
-
-```
-@memory search <query>     # Search stored memory
-@memory show recent        # Show recent interactions
-@memory clear <filter>     # Clear specific memory
-@memory export             # Export session data
-@memory stats              # View statistics
-```
-
----
-
-## 📚 Documentation
-
-- **[README.md](README.md)** - Full API reference
-- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute getting started
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Design and architecture
-- **[ISOLATION.md](ISOLATION.md)** - Standalone principles
-- **[VERIFICATION.md](VERIFICATION.md)** - Test results and verification
-- **[agents/README.md](agents/README.md)** - Global agent integration
-- **[docs/GLOBAL-AGENT.md](docs/GLOBAL-AGENT.md)** - Global agent setup
-- **[docs/ANSWERING-RULES.md](docs/ANSWERING-RULES.md)** - Mandatory rules
-
----
-
-## ✅ Verification
-
-All tests passing:
+Run the comprehensive test suite:
 
 ```bash
-npm test    # Run test suite (22/22 passing)
-npm start   # Run basic example
-npm run demo # Run advanced demo
+npm test
 ```
 
-**Test Coverage**: 100% (22/22 tests passing)
+**Test Coverage:**
+- ✅ 22/22 tests passing
+- Memory operations (read/write/search/delete/stats/clear)
+- Agent lifecycle (create/execute/status)
+- Parallel/Sequential/Pipeline execution
+- Platform management
+- Workflow execution
+- Session management
+- Event system
+- Execution history
 
 ---
 
-## 🔐 Privacy & Security
+## 🔒 Security
 
-- **No secrets stored**: API keys never saved in memory
-- **No external sharing**: All data stored locally
-- **User control**: Clear memory anytime
-- **Sensitive data**: Flagged and handled appropriately
+PowerSkills Memory Orchestrator v2.1.0 has undergone comprehensive security hardening:
+
+- **15 Critical Vulnerabilities Fixed** (see [SECURITY_AUDIT.md](SECURITY_AUDIT.md))
+- Cryptographically secure session generation
+- ReDoS attack protection (regex pattern limits)
+- API key leakage prevention
+- Input validation and type safety
+- Resource exhaustion protection
+- Memory leak prevention
+
+**Verification:** [VERIFICATION.md](VERIFICATION.md)
+
+---
+
+## 📊 Architecture
+
+```
+PowerSkills Memory Orchestrator
+│
+├── Core Components
+│   ├── Memory Engine (memory-engine.js)
+│   │   ├── Session management
+│   │   ├── Read/Write operations
+│   │   ├── Search with regex
+│   │   └── Statistics tracking
+│   │
+│   ├── Platform Adapter (platform-adapter.js)
+│   │   ├── Multi-platform support
+│   │   ├── API abstraction
+│   │   └── Credential management
+│   │
+│   ├── Sub-Agent Orchestrator (sub-agent-orchestrator.js)
+│   │   ├── Agent lifecycle
+│   │   ├── Task execution
+│   │   ├── Parallel/Sequential modes
+│   │   └── Pipeline workflows
+│   │
+│   └── Update Manager (update-manager.js)
+│       ├── GitHub version checking
+│       ├── Auto-update on startup
+│       └── Changelog retrieval
+│
+└── Main Plugin (index.js)
+    ├── Unified API
+    ├── Session management
+    ├── Event system
+    └── Workflow execution
+```
+
+---
+
+## 🔄 Auto-Update System
+
+The plugin automatically checks for updates when initialized:
+
+1. **Startup Check**: Queries GitHub API for latest version
+2. **Version Comparison**: Compares all version parts (not just major.minor.patch)
+3. **Auto-Download**: Downloads update if available
+4. **Auto-Apply**: Applies update immediately
+5. **User Notification**: Shows console message with changelog
+6. **Restart Prompt**: Asks user to restart to apply updates
+
+**Configuration:**
+```javascript
+const plugin = new PowerSkillsPlugin({
+  autoUpdate: true,  // Enable auto-update (default)
+  // autoUpdate: false  // Disable auto-update
+});
+```
+
+---
+
+## 📝 Configuration
+
+### Full Configuration Example
+
+```javascript
+const plugin = new PowerSkillsPlugin({
+  // Auto-update
+  autoUpdate: true,
+
+  // Memory settings
+  memory: {
+    persistToDisk: true,
+    sessionTimeout: 3600000,
+    maxMemorySize: 104857600  // 100MB
+  },
+
+  // Orchestrator settings
+  orchestrator: {
+    maxConcurrentAgents: 10,
+    taskTimeout: 300000,
+    retryAttempts: 3
+  },
+
+  // Platform configurations
+  platforms: {
+    claude: {
+      enabled: true,
+      apiKey: process.env.CLAUDE_API_KEY,
+      baseUrl: 'https://api.anthropic.com',
+      defaultModel: 'claude-opus-5'
+    },
+    openai: {
+      enabled: true,
+      apiKey: process.env.OPENAI_API_KEY,
+      baseUrl: 'https://api.openai.com',
+      defaultModel: 'gpt-4'
+    }
+  }
+});
+```
 
 ---
 
 ## 🎯 Use Cases
 
-### Perfect For:
-- ✅ Session continuity across conversations
-- ✅ Project context preservation
-- ✅ Long-running task tracking
-- ✅ Multi-agent orchestration
-- ✅ Complex workflow automation
-- ✅ Cross-platform AI integration
+### 1. Data Pipeline with Memory
+```javascript
+// Store intermediate results
+await plugin.writeMemory('pipeline:step1', processedData);
 
-### Current Limitations:
-- ⚠️ Memory is in-memory only (persistence stubs)
-- ⚠️ Platform API calls are mocked (easy to implement)
-- ⚠️ Compression and encryption are placeholders
+// Execute transformation
+const agent = await plugin.createAgent({ name: 'Transformer' });
+const result = await plugin.executeTask(agent, {
+  description: 'Transform data',
+  data: processedData
+});
 
-See [VERIFICATION.md](VERIFICATION.md) for full details.
+// Store final result
+await plugin.writeMemory('pipeline:final', result);
+```
+
+### 2. Multi-Agent Collaboration
+```javascript
+// Create multiple agents
+const agents = await Promise.all([
+  plugin.createAgent({ name: 'Analyzer' }),
+  plugin.createAgent({ name: 'Validator' }),
+  plugin.createAgent({ name: 'Formatter' })
+]);
+
+// Execute in parallel
+const results = await plugin.parallelExecute(
+  agents.map((agentId, i) => ({
+    agentId,
+    task: { description: tasks[i], data }
+  }))
+);
+```
+
+### 3. Session-Based Workflows
+```javascript
+// Start session
+await plugin.initPromise;
+
+// Perform operations
+await plugin.writeMemory('session:context', context);
+const result = await plugin.executeWorkflow(workflow);
+
+// Export session for later
+const sessionData = await plugin.exportSession();
+
+// Resume later
+await plugin.resumeSession();
+```
 
 ---
 
-## 📈 Performance
+## 🛠️ Development
 
-- **Memory operations**: < 1ms per operation
-- **Agent creation**: < 1ms per agent
-- **Global agent overhead**: < 150ms per request
-- **Non-blocking**: Runs in parallel, never delays response
+### Project Structure
+```
+Powerskills-orchestrator/
+├── index.js                 # Main plugin entry
+├── core/
+│   ├── memory-engine.js     # Memory operations
+│   ├── platform-adapter.js  # Platform abstraction
+│   ├── sub-agent-orchestrator.js  # Agent management
+│   └── update-manager.js    # Auto-update system
+├── test/
+│   └── test-suite.js        # Comprehensive tests
+├── examples/
+│   ├── basic-usage.js       # Basic examples
+│   └── demo.js              # Full demo
+├── SECURITY_AUDIT.md        # Security review
+├── VERIFICATION.md          # Verification report
+└── package.json
+```
+
+### Running Examples
+```bash
+npm start        # Run basic example
+npm run demo     # Run full demo
+```
 
 ---
 
 ## 🤝 Contributing
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for design principles and contribution guidelines.
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new features
+4. Ensure all tests pass (`npm test`)
+5. Submit a pull request
 
 ---
 
 ## 📄 License
 
-MIT License - See [LICENSE](LICENSE) for details.
+MIT License - see LICENSE file for details
 
 ---
 
 ## 🔗 Links
 
-- **GitHub**: https://github.com/vyshvs/Powerskills-orchestrator
+- **Repository**: https://github.com/vyshvs/Powerskills-orchestrator
+- **Security Audit**: [SECURITY_AUDIT.md](SECURITY_AUDIT.md)
+- **Verification Report**: [VERIFICATION.md](VERIFICATION.md)
 - **Issues**: https://github.com/vyshvs/Powerskills-orchestrator/issues
-- **Author**: vyshvs
 
 ---
 
-## 🎉 What's New in v2.0.0
+## 📈 Version History
 
-### Global Memory Agent
-- Runs in parallel with ALL requests (mandatory)
-- Uses Claude Haiku 4.5 for optimal speed
-- Automatic context loading and storage
-- < 150ms overhead per request
+### v2.1.0 (Latest)
+- ✅ Auto-update on plugin startup
+- ✅ 15 critical security vulnerabilities fixed
+- ✅ Cryptographically secure session IDs
+- ✅ ReDoS protection
+- ✅ API key leakage prevention
+- ✅ Resource optimization (CPU, memory)
+- ✅ Full version comparison in update checks
+- ✅ Pipeline data flow improvements
+- ✅ 22/22 tests passing
 
-### Mandatory Answering Rules
-- Pre-processing: Load context automatically
-- Active tracking: Track operations in real-time
-- Post-processing: Store results and update state
-- Error handling: Never block main request
+### v2.0.1
+- GitHub update manager
+- Automatic version checking
 
-### Cross-Platform Integration
-- OpenAI, Claude, Antigravity support
-- Unified API across platforms
-- No platform-specific SDKs required
-
-### Zero Dependencies
-- Completely standalone
-- No npm packages required
-- Easy to audit and secure
+### v1.0.0
+- Initial release
+- Core memory operations
+- Sub-agent orchestration
+- Platform adapters
 
 ---
 
-**Status**: ✅ Production Ready (for in-memory use)  
-**Version**: 2.0.0  
-**Last Updated**: 2026-08-28
+**Built with ❤️ by PowerSkills Team**
+
+**Powered by:** Claude Opus 5 🤖
