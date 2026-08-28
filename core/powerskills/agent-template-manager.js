@@ -91,6 +91,20 @@ class AgentTemplateManager {
       this.templates.set(name, template);
     });
 
+    // Load converted agent templates
+    try {
+      const convertedTemplates = require('./agent-templates-converted.js');
+      Object.entries(convertedTemplates).forEach(([name, template]) => {
+        if (!this.templates.has(name)) {
+          this.templates.set(name, template);
+        }
+      });
+    } catch (error) {
+      this.plugin.memoryEngine.log('AGENT_TEMPLATES', 'No converted templates found', {
+        error: error.message
+      });
+    }
+
     this.plugin.memoryEngine.log('AGENT_TEMPLATES', 'Templates loaded', {
       totalTemplates: this.templates.size
     });

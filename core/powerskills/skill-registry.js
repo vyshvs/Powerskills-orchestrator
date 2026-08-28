@@ -13,9 +13,7 @@ class SkillRegistry {
   }
 
   loadEmbeddedSkills() {
-    // This will be populated by automated skill conversion
-    // For now, registering core skills manually
-
+    // Load core skills with full implementations
     const coreSkills = [
       {
         name: 'deep-research',
@@ -67,6 +65,26 @@ class SkillRegistry {
     coreSkills.forEach(skill => {
       this.registerSkill(skill);
     });
+
+    // Load all converted skills from skills directory
+    try {
+      const skillsIndex = require('./skills/index.js');
+      Object.entries(skillsIndex).forEach(([name, skillModule]) => {
+        // Add plugin reference to context
+        const skill = {
+          ...skillModule,
+          execute: async (context) => {
+            return await skillModule.execute({ ...context, plugin: this.plugin });
+          }
+        };
+        this.registerSkill(skill);
+      });
+    } catch (error) {
+      // Skills directory doesn't exist yet or no converted skills
+      this.plugin.memoryEngine.log('SKILL_REGISTRY', 'No converted skills found', {
+        error: error.message
+      });
+    }
 
     this.plugin.memoryEngine.log('SKILL_REGISTRY', 'Skills loaded', {
       totalSkills: this.skills.size,

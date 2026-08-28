@@ -56,7 +56,8 @@ test('SkillRegistry loads core skills', async () => {
   await plugin.initPromise;
 
   const skillCount = plugin.skillRegistry.getSkillCount();
-  if (skillCount < 5) throw new Error(`Expected at least 5 skills, got ${skillCount}`);
+  // Now we have 5 core skills + 39 converted skills = 44 total
+  if (skillCount < 40) throw new Error(`Expected at least 40 skills, got ${skillCount}`);
 });
 
 test('SkillRegistry matches skills by task type', async () => {
@@ -86,7 +87,8 @@ test('AgentTemplateManager loads templates', async () => {
   await plugin.initPromise;
 
   const templateCount = plugin.agentTemplateManager.getTemplateCount();
-  if (templateCount < 5) throw new Error(`Expected at least 5 templates, got ${templateCount}`);
+  // Now we have 8 core + 39 converted = 47 total
+  if (templateCount < 40) throw new Error(`Expected at least 40 templates, got ${templateCount}`);
 });
 
 test('AgentTemplateManager instantiates agents', async () => {
