@@ -1,6 +1,6 @@
 {
   "name": "PowerSkills Memory Orchestrator",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity. Features: persistent memory, parallel/sequential/pipeline execution, workflow engine, session management, and cross-platform abstraction.",
   "author": {
     "name": "vyshvs",
