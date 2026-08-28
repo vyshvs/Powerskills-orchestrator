@@ -1,6 +1,8 @@
 {
-  "name": "PowerSkills Memory Orchestrator",
-  "version": "2.1.0",
+  "_note": "Legacy/reference manifest. Claude Code reads .claude-plugin/plugin.json — edit that file for plugin installation.",
+  "name": "powerskills-memory-orchestrator",
+  "version": "3.5.0",
+  "displayName": "PowerSkills Memory Orchestrator",
   "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity.",
   "author": {
     "name": "vyshvs",
@@ -9,16 +11,7 @@
   "license": "MIT",
   "main": "index.js",
   "agents": [
-    {
-      "name": "memory-writer",
-      "path": "agents/memory-writer.md",
-      "config": "agents/memory-writer.json",
-      "scope": "global",
-      "type": "custom-agent",
-      "model": "claude-haiku-4-5-20251001",
-      "alwaysActive": true,
-      "runInParallel": true
-    }
+    "agents/memory-writer.md"
   ],
   "skills": [
     "skills/powerskills-orchestrator",

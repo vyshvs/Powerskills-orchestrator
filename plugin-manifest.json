@@ -1,6 +1,7 @@
 {
+  "_note": "Cross-platform reference manifest (OpenAI/Claude/Antigravity). Claude Code reads .claude-plugin/plugin.json.",
   "name": "powerskills-memory-orchestrator",
-  "version": "2.1.0",
+  "version": "3.5.0",
   "displayName": "PowerSkills Memory Orchestrator",
   "description": "Advanced plugin with global memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity. Memory agent runs in parallel with ALL requests automatically.",
   "author": "PowerSkills Team",

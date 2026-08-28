@@ -1,3 +1,9 @@
+---
+name: memory-writer
+description: Manages persistent project memory — records session context, project structure tracking, and implementation history. Use for recording what happened during a task or recalling prior project context.
+model: haiku
+---
+
 # Memory Writer Agent
 
 **Type**: Global Custom Agent  

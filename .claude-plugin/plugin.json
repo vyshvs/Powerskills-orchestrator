@@ -1,11 +1,22 @@
 {
-  "name": "PowerSkills Memory Orchestrator",
-  "version": "2.1.0",
-  "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity. Features: persistent memory, parallel/sequential/pipeline execution, workflow engine, session management, and cross-platform abstraction.",
+  "name": "powerskills-memory-orchestrator",
+  "version": "3.5.0",
+  "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end. Features: persistent memory, parallel/sequential/pipeline execution, workflow engine, session management, institutional-grade trading agents, market data feeds, backtesting, and broker execution.",
   "author": {
     "name": "vyshvs",
     "email": "vyshvs@users.noreply.github.com"
   },
+  "homepage": "https://github.com/vyshvs/Powerskills-orchestrator",
   "repository": "https://github.com/vyshvs/Powerskills-orchestrator",
-  "keywords": ["orchestration", "memory", "sub-agents", "workflows", "openai", "claude", "antigravity", "parallel-execution", "session-recording"]
+  "license": "MIT",
+  "keywords": [
+    "orchestration",
+    "memory",
+    "sub-agents",
+    "workflows",
+    "parallel-execution",
+    "session-recording",
+    "trading",
+    "backtesting"
+  ]
 }

@@ -1,21 +1,33 @@
 {
   "name": "powerskills-marketplace",
-  "description": "PowerSkills plugin marketplace - Advanced memory orchestration with global sub-agents",
-  "version": "2.1.0",
   "owner": {
     "name": "vyshvs",
     "email": "vyshvs@users.noreply.github.com"
   },
+  "metadata": {
+    "description": "PowerSkills plugin marketplace - Advanced memory orchestration with global sub-agents",
+    "version": "3.5.0"
+  },
   "plugins": [
     {
-      "name": "PowerSkills Memory Orchestrator",
-      "description": "Advanced plugin with global memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity. Features: persistent memory, parallel/sequential/pipeline execution, workflow engine, session management, and cross-platform abstraction.",
-      "version": "2.1.0",
+      "name": "powerskills-memory-orchestrator",
       "source": "./",
+      "description": "Advanced plugin with global memory reader/writer sub-agent that records everything from start to end. Features: persistent memory, parallel/sequential/pipeline execution, workflow engine, session management, institutional-grade trading agents, market data feeds, backtesting, and broker execution.",
+      "version": "3.5.0",
       "author": {
         "name": "vyshvs",
         "email": "vyshvs@users.noreply.github.com"
-      }
+      },
+      "homepage": "https://github.com/vyshvs/Powerskills-orchestrator",
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": [
+        "orchestration",
+        "memory",
+        "sub-agents",
+        "workflows",
+        "trading"
+      ]
     }
   ]
 }
