@@ -161,13 +161,79 @@ Need specific analysis?
 }
 
 /**
- * Generate Master Trader analysis
+ * Generate Master Trader analysis with live context
  */
 async function generateMasterTraderAnalysis(userMessage, plugin) {
-  // This would invoke the master-trader agent template
-  // For now, return structured guidance
+  // Get live market context
+  let marketContext = null;
+  let userContext = null;
+
+  try {
+    if (plugin.marketContext) {
+      marketContext = await plugin.marketContext.getCurrentContext();
+    }
+  } catch (error) {
+    plugin.memoryEngine.log('TRADING_ANALYSIS', 'Market context unavailable', { error: error.message });
+  }
+
+  try {
+    if (plugin.userProfileManager) {
+      const profile = plugin.userProfileManager.getProfile('default');
+      userContext = {
+        accountSize: profile.account.size,
+        riskPerTrade: profile.risk.perTrade * 100,
+        experienceLevel: profile.trading.experienceLevel,
+        preferredMarkets: profile.trading.preferredMarkets,
+        winRate: profile.tracking.totalTrades > 0
+          ? (profile.tracking.winningTrades / profile.tracking.totalTrades * 100).toFixed(1)
+          : 'N/A'
+      };
+    }
+  } catch (error) {
+    plugin.memoryEngine.log('TRADING_ANALYSIS', 'User context unavailable', { error: error.message });
+  }
+
+  // Build context-aware analysis
+  let contextSection = '';
+
+  if (marketContext) {
+    contextSection = `
+### Live Market Context (${new Date(marketContext.timestamp).toLocaleString()})
+**Market Regime:** ${marketContext.regime.current.toUpperCase()} (${(marketContext.regime.confidence * 100).toFixed(0)}% confidence)
+**Volatility:** ${marketContext.volatility.level.toUpperCase()} - VIX ${marketContext.volatility.vix}
+${marketContext.volatility.interpretation}
+
+**Major Indices:**
+${marketContext.indices.SPY ? `- S&P 500 (SPY): ${marketContext.indices.SPY.dailyChange > 0 ? '+' : ''}${marketContext.indices.SPY.dailyChange}% today, ${marketContext.indices.SPY.trend} trend` : ''}
+${marketContext.indices.QQQ ? `- Nasdaq (QQQ): ${marketContext.indices.QQQ.dailyChange > 0 ? '+' : ''}${marketContext.indices.QQQ.dailyChange}% today, ${marketContext.indices.QQQ.trend} trend` : ''}
+
+**Sector Leadership:**
+${marketContext.sectors.leaders.length > 0 ? marketContext.sectors.leaders.map(s => `- ${s.sector}: ${s.weeklyChange > 0 ? '+' : ''}${s.weeklyChange}%`).join('\n') : '- Data unavailable'}
+
+**Market Sentiment:** ${marketContext.sentiment.level.toUpperCase()} (${marketContext.sentiment.score}/100)
+${marketContext.sentiment.interpretation}
+
+**Currency Strength:** Dollar ${marketContext.currency.strength.toUpperCase()}
+${marketContext.currency.interpretation}
+`;
+  }
+
+  let profileSection = '';
+
+  if (userContext) {
+    profileSection = `
+### Your Trading Profile
+- **Account Size:** $${userContext.accountSize.toLocaleString()}
+- **Risk Per Trade:** ${userContext.riskPerTrade}%
+- **Experience Level:** ${userContext.experienceLevel}
+- **Preferred Markets:** ${userContext.preferredMarkets.join(', ')}
+- **Historical Win Rate:** ${userContext.winRate}%
+`;
+  }
 
   return `
+${contextSection}
+${profileSection}
 ### Market Context Assessment
 Analyzing current market regime, risk sentiment, and key catalysts...
 
@@ -201,7 +267,37 @@ Analyzing current market regime, risk sentiment, and key catalysts...
 **Recommendation**: [BUY/SELL/WAIT]
 
 *Note: Only A+ and A rated setups should be traded. Wait for better setups if rated B or C.*
+
+---
+*Analysis generated with live market data. Context refreshes every 5 minutes.*
   `.trim();
+}
+
+/**
+ * Get personalized position sizing for user
+ */
+function getPersonalizedPositionSizing(plugin, tradeSetup) {
+  if (!plugin.userProfileManager) {
+    return 'User profile unavailable. Use generic position sizing calculator.';
+  }
+
+  const sizing = plugin.userProfileManager.calculatePositionSize('default', tradeSetup);
+
+  if (!sizing.allowed) {
+    return `
+❌ **Trade Not Allowed**
+${sizing.reason}
+${sizing.suggestion || ''}
+`;
+  }
+
+  return `
+✅ **Position Size Calculation**
+- **Size:** ${sizing.size} ${tradeSetup.market === 'forex' ? 'lots' : tradeSetup.market === 'stocks' ? 'shares' : 'units'}
+- **Risk Amount:** $${sizing.riskAmount.toFixed(2)} (${sizing.riskPercent.toFixed(2)}% of account)
+- **Portfolio Heat:** ${sizing.portfolioHeat.toFixed(1)}% (after adding this position)
+${sizing.adjustments ? `- **Note:** ${sizing.adjustments}` : ''}
+`;
 }
 
 /**

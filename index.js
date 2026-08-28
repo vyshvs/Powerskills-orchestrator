@@ -22,7 +22,7 @@ class PowerSkillsPlugin {
   constructor(config = {}) {
     this.config = {
       name: 'PowerSkills Memory Orchestrator',
-      version: '2.1.0',
+      version: '3.2.0',
       ...config
     };
 
@@ -44,6 +44,12 @@ class PowerSkillsPlugin {
     this.tokenBudgetTracker = new TokenBudgetTracker(this);
     this.verificationLoop = new VerificationLoop(this);
     this.orchestrationGates = new OrchestrationGates(this);
+
+    // Trading Context Systems (Week 1 - Foundation)
+    const MarketContextProvider = require('./core/context/market-context-provider.js');
+    const UserProfileManager = require('./core/personalization/user-profile-manager.js');
+    this.marketContext = new MarketContextProvider(this);
+    this.userProfileManager = new UserProfileManager(this);
 
     // Session management
     this.sessionActive = false;
