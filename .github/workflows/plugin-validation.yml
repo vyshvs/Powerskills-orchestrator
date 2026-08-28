@@ -181,7 +181,7 @@ jobs:
         echo "## Directory Structure" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
 
-        REQUIRED_DIRS=(".claude-plugin" "agents" "skills" "commands" "core" "test" "scripts")
+        REQUIRED_DIRS=(".claude-plugin" "agents" "skills" "core" "test" "scripts")
         ALL_PRESENT=true
 
         for dir in "${REQUIRED_DIRS[@]}"; do
