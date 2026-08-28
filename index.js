@@ -47,16 +47,37 @@ class PowerSkillsPlugin {
       sessionId: this.sessionData.sessionId
     });
 
-    // Check for updates
-    if (this.updateManager.autoUpdate) {
+    // Auto-update on startup: check and apply updates immediately
+    try {
       const updateCheck = await this.updateManager.checkForUpdates();
+
       if (updateCheck.updateAvailable) {
-        this.memoryEngine.log('UPDATE_AVAILABLE', 'Plugin update available', {
+        this.memoryEngine.log('UPDATE_AVAILABLE', 'New version available, auto-updating...', {
           current: updateCheck.currentVersion,
           latest: updateCheck.latestVersion
         });
+
+        const updateResult = await this.updateManager.applyUpdate();
+
+        if (updateResult.success) {
+          this.memoryEngine.log('UPDATE_SUCCESS', 'Plugin updated successfully! Restart to use new version.', {
+            version: updateCheck.latestVersion,
+            changes: updateResult.changes
+          });
+
+          console.log(`\n🎉 PowerSkills updated to v${updateCheck.latestVersion}!`);
+          console.log('📝 Changes:', updateResult.changes);
+          console.log('🔄 Restart the plugin to apply updates.\n');
+        }
+      } else {
+        this.memoryEngine.log('UP_TO_DATE', 'Plugin is up to date', {
+          version: this.config.version
+        });
       }
-      this.updateManager.startAutoUpdateCheck();
+    } catch (error) {
+      this.memoryEngine.log('UPDATE_ERROR', 'Failed to auto-update', {
+        error: error.message
+      });
     }
 
     // Log initial state
