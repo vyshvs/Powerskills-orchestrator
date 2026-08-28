@@ -9,6 +9,15 @@ const PlatformAdapter = require('./core/platform-adapter');
 const SubAgentOrchestrator = require('./core/sub-agent-orchestrator');
 const UpdateManager = require('./core/update-manager');
 
+// PowerSkills Framework
+const SkillRegistry = require('./core/powerskills/skill-registry');
+const AgentTemplateManager = require('./core/powerskills/agent-template-manager');
+const CommandDispatcher = require('./core/powerskills/command-dispatcher');
+const TaskRouter = require('./core/powerskills/task-router');
+const TokenBudgetTracker = require('./core/powerskills/token-budget-tracker');
+const VerificationLoop = require('./core/powerskills/verification-loop');
+const OrchestrationGates = require('./core/powerskills/orchestration-gates');
+
 class PowerSkillsPlugin {
   constructor(config = {}) {
     this.config = {
@@ -26,6 +35,15 @@ class PowerSkillsPlugin {
       currentVersion: this.config.version,
       autoUpdate: config.autoUpdate !== false
     });
+
+    // PowerSkills Framework
+    this.skillRegistry = new SkillRegistry(this);
+    this.agentTemplateManager = new AgentTemplateManager(this);
+    this.commandDispatcher = new CommandDispatcher(this);
+    this.taskRouter = new TaskRouter(this);
+    this.tokenBudgetTracker = new TokenBudgetTracker(this);
+    this.verificationLoop = new VerificationLoop(this);
+    this.orchestrationGates = new OrchestrationGates(this);
 
     // Session management
     this.sessionActive = false;
@@ -187,6 +205,69 @@ class PowerSkillsPlugin {
 
   getPlatformStatus() {
     return this.platformAdapter.getStatus();
+  }
+
+  // ============= POWERSKILLS OPERATIONS =============
+
+  async processRequest(userMessage) {
+    this.ensureSessionActive();
+
+    // Check if it's a command
+    const commandParsed = this.commandDispatcher.parseCommand(userMessage);
+    if (commandParsed) {
+      return await this.commandDispatcher.executeCommand(
+        commandParsed.command,
+        commandParsed.args
+      );
+    }
+
+    // Execute orchestration gates
+    const result = await this.orchestrationGates.execute(userMessage);
+
+    return result;
+  }
+
+  async executeApprovedPlan(plan) {
+    this.ensureSessionActive();
+
+    // Continue with gates 4-7
+    const result = await this.orchestrationGates.executeApprovedPlan(
+      plan.gates,
+      plan.plan
+    );
+
+    return result;
+  }
+
+  async executeSkill(skillName, context) {
+    this.ensureSessionActive();
+
+    return await this.skillRegistry.executeSkill(skillName, context);
+  }
+
+  async getSkillRecommendations(userMessage) {
+    return this.taskRouter.getRecommendedSkills(userMessage);
+  }
+
+  getTokenBudgetStatus() {
+    return this.tokenBudgetTracker.getReport();
+  }
+
+  listAvailableSkills() {
+    return this.skillRegistry.getAllSkills().map(s => ({
+      name: s.name,
+      description: s.description,
+      category: s.category,
+      triggers: s.triggers
+    }));
+  }
+
+  listAvailableCommands() {
+    return this.commandDispatcher.listCommands();
+  }
+
+  listAgentTemplates() {
+    return this.agentTemplateManager.listTemplates();
   }
 
   // ============= WORKFLOW OPERATIONS =============

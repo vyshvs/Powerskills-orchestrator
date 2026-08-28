@@ -418,6 +418,20 @@ class SubAgentOrchestrator {
     };
   }
 
+  getStatus() {
+    return {
+      activeAgents: this.activeAgents.size,
+      maxConcurrentAgents: this.maxConcurrentAgents,
+      waitingQueue: this.waitingQueue.length,
+      agentDetails: Array.from(this.activeAgents.entries()).map(([id, agent]) => ({
+        id,
+        name: agent.name,
+        type: agent.type,
+        createdAt: agent.createdAt
+      }))
+    };
+  }
+
   async importState(state) {
     this.agents = new Map(state.agents);
     this.executionHistory = state.executionHistory;
