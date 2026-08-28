@@ -22,7 +22,7 @@ class PowerSkillsPlugin {
   constructor(config = {}) {
     this.config = {
       name: 'PowerSkills Memory Orchestrator',
-      version: '3.3.0',
+      version: '3.4.0',
       ...config
     };
 
@@ -56,6 +56,12 @@ class PowerSkillsPlugin {
     const PerformanceTracker = require('./core/analytics/performance-tracker.js');
     this.multiAgentCoordinator = new MultiAgentCoordinator(this);
     this.performanceTracker = new PerformanceTracker(this);
+
+    // Trading Infrastructure Systems (Week 3 - Infrastructure)
+    const MarketDataFeed = require('./core/data/market-data-feed.js');
+    const BacktestingEngine = require('./core/backtesting/backtesting-engine.js');
+    this.marketDataFeed = new MarketDataFeed(this);
+    this.backtestingEngine = new BacktestingEngine(this);
 
     // Session management
     this.sessionActive = false;
