@@ -7,6 +7,7 @@
 const MemoryEngine = require('./core/memory-engine');
 const PlatformAdapter = require('./core/platform-adapter');
 const SubAgentOrchestrator = require('./core/sub-agent-orchestrator');
+const UpdateManager = require('./core/update-manager');
 
 class PowerSkillsPlugin {
   constructor(config = {}) {
@@ -20,6 +21,11 @@ class PowerSkillsPlugin {
     this.memoryEngine = new MemoryEngine(config.memory || {});
     this.platformAdapter = new PlatformAdapter(config.platforms || {});
     this.orchestrator = new SubAgentOrchestrator(this.memoryEngine, config.orchestrator || {});
+    this.updateManager = new UpdateManager({
+      repository: 'https://api.github.com/repos/vyshvs/Powerskills-orchestrator',
+      currentVersion: this.config.version || '2.1.0',
+      autoUpdate: config.autoUpdate !== false
+    });
 
     // Session management
     this.sessionActive = false;
@@ -41,6 +47,18 @@ class PowerSkillsPlugin {
       version: this.config.version,
       sessionId: this.sessionData.sessionId
     });
+
+    // Check for updates
+    if (this.updateManager.autoUpdate) {
+      const updateCheck = await this.updateManager.checkForUpdates();
+      if (updateCheck.updateAvailable) {
+        this.memoryEngine.log('UPDATE_AVAILABLE', 'Plugin update available', {
+          current: updateCheck.currentVersion,
+          latest: updateCheck.latestVersion
+        });
+      }
+      this.updateManager.startAutoUpdateCheck();
+    }
 
     // Log initial state
     await this.memoryEngine.write('session:init', this.sessionData, {
@@ -385,6 +403,20 @@ class PowerSkillsPlugin {
     return sessionSummary;
   }
 
+  // ============= UPDATE OPERATIONS =============
+
+  async checkForUpdates() {
+    return await this.updateManager.checkForUpdates();
+  }
+
+  async applyUpdate() {
+    return await this.updateManager.applyUpdate();
+  }
+
+  getUpdateStatus() {
+    return this.updateManager.getUpdateStatus();
+  }
+
   // ============= UTILITY METHODS =============
 
   ensureSessionActive() {
@@ -481,7 +513,13 @@ class PowerSkillsPlugin {
       // Utilities
       status: this.getFullStatus.bind(this),
       logs: this.getLogs.bind(this),
-      on: this.on.bind(this)
+      on: this.on.bind(this),
+      // Updates
+      update: {
+        check: this.checkForUpdates.bind(this),
+        apply: this.applyUpdate.bind(this),
+        status: this.getUpdateStatus.bind(this)
+      }
     };
   }
 }
