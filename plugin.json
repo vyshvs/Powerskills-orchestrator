@@ -1,18 +1,29 @@
 {
-  "name": "PowerSkills",
-  "version": "1.0.0",
-  "description": "Master orchestration layer with persistent memory, adaptive model switching, phase-level token budget estimation, log analysis, auto-troubleshooting, and deduplication-aware skill delegation. Entry point for all complex requests.",
+  "name": "PowerSkills Memory Orchestrator",
+  "version": "2.0.0",
+  "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity.",
   "author": {
-    "name": "vyshvs"
+    "name": "vyshvs",
+    "email": "vyshvs@users.noreply.github.com"
   },
   "license": "MIT",
+  "main": "index.js",
+  "agents": [
+    {
+      "name": "memory-writer",
+      "path": "agents/memory-writer.md",
+      "config": "agents/memory-writer.json",
+      "scope": "global",
+      "type": "custom-agent",
+      "model": "claude-haiku-4-5-20251001",
+      "alwaysActive": true,
+      "runInParallel": true
+    }
+  ],
   "skills": [
     "skills/powerskills-orchestrator",
     "skills/memory-manager",
     "skills/token-budget-estimator",
     "skills/output-verifier"
-  ],
-  "agents": [
-    "agents/memory-writer.md"
   ]
 }

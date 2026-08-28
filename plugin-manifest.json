@@ -1,8 +1,8 @@
 {
   "name": "powerskills-memory-orchestrator",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "displayName": "PowerSkills Memory Orchestrator",
-  "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end, compatible with OpenAI, Claude, and Antigravity",
+  "description": "Advanced plugin with global memory reader/writer sub-agent that records everything from start to end. Compatible with OpenAI, Claude, and Antigravity. Memory agent runs in parallel with ALL requests automatically.",
   "author": "PowerSkills Team",
   "license": "MIT",
   "platforms": {
@@ -27,23 +27,46 @@
       "reader": true,
       "writer": true,
       "persistence": true,
-      "streaming": true
+      "streaming": true,
+      "globalAgent": true,
+      "alwaysActive": true
     },
     "subAgents": {
       "enabled": true,
       "maxConcurrent": 10,
-      "isolation": "worktree"
+      "isolation": "worktree",
+      "globalAgents": ["memory-writer"]
     },
     "recording": {
       "sessionTracking": true,
       "eventLogging": true,
-      "stateSnapshots": true
+      "stateSnapshots": true,
+      "parallelRecording": true
     }
   },
+  "agents": [
+    {
+      "id": "memory-writer",
+      "name": "Memory Writer",
+      "type": "global",
+      "scope": "all-requests",
+      "model": "claude-haiku-4-5-20251001",
+      "behavior": {
+        "runInParallel": true,
+        "alwaysActive": true,
+        "nonBlocking": true,
+        "mandatory": true
+      },
+      "description": "Manages persistent project memory — project structure tracking and implementation history. Uses Claude Haiku 4.5 exclusively.",
+      "configPath": "agents/memory-writer.json",
+      "documentationPath": "agents/memory-writer.md"
+    }
+  ],
   "policy": {
     "installation": "AVAILABLE",
     "authentication": "ON_INSTALL",
-    "dataSharing": "NONE"
+    "dataSharing": "NONE",
+    "globalAgentsEnabled": true
   },
   "category": "Productivity"
 }
