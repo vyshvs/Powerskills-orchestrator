@@ -1,7 +1,7 @@
 {
   "name": "powerskills-memory-orchestrator",
   "version": "3.5.0",
-  "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end. Features: persistent memory, parallel/sequential/pipeline execution, workflow engine, session management, institutional-grade trading agents, market data feeds, backtesting, and broker execution.",
+  "description": "AI orchestration plugin with persistent memory, 45 skills, 53 agents, 7-gate workflow system. Features: parallel/sequential execution, institutional trading intelligence (6 agents, 14 brokers, backtesting), market data feeds, auto-verification loops, zero dependencies.",
   "author": {
     "name": "vyshvs",
     "email": "vyshvs@users.noreply.github.com"
