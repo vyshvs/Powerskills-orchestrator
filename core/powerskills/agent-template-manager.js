@@ -105,6 +105,25 @@ class AgentTemplateManager {
       });
     }
 
+    // Load trading agent templates (specialized financial market agents)
+    try {
+      const tradingAgents = require('./agent-templates-trading.js');
+      Object.entries(tradingAgents).forEach(([name, template]) => {
+        if (!this.templates.has(name)) {
+          this.templates.set(name, template);
+        }
+      });
+
+      this.plugin.memoryEngine.log('AGENT_TEMPLATES', 'Trading agents loaded', {
+        count: Object.keys(tradingAgents).length,
+        agents: Object.keys(tradingAgents)
+      });
+    } catch (error) {
+      this.plugin.memoryEngine.log('AGENT_TEMPLATES', 'No trading agents found', {
+        error: error.message
+      });
+    }
+
     this.plugin.memoryEngine.log('AGENT_TEMPLATES', 'Templates loaded', {
       totalTemplates: this.templates.size
     });

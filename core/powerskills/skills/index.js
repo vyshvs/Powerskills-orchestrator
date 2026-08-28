@@ -43,4 +43,5 @@ module.exports = {
   'verification-loop': require('./verification-loop'),
   'video-editing': require('./video-editing'),
   'x-api': require('./x-api'),
+  'trading-analysis': require('./trading-analysis')
 };
