@@ -1,0 +1,49 @@
+{
+  "name": "powerskills-memory-orchestrator",
+  "version": "1.0.0",
+  "displayName": "PowerSkills Memory Orchestrator",
+  "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end, compatible with OpenAI, Claude, and Antigravity",
+  "author": "PowerSkills Team",
+  "license": "MIT",
+  "platforms": {
+    "openai": {
+      "enabled": true,
+      "apiVersion": "v1",
+      "compatibleModels": ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"]
+    },
+    "claude": {
+      "enabled": true,
+      "apiVersion": "v1",
+      "compatibleModels": ["claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"]
+    },
+    "antigravity": {
+      "enabled": true,
+      "apiVersion": "v1",
+      "compatibleModels": ["all"]
+    }
+  },
+  "capabilities": {
+    "memory": {
+      "reader": true,
+      "writer": true,
+      "persistence": true,
+      "streaming": true
+    },
+    "subAgents": {
+      "enabled": true,
+      "maxConcurrent": 10,
+      "isolation": "worktree"
+    },
+    "recording": {
+      "sessionTracking": true,
+      "eventLogging": true,
+      "stateSnapshots": true
+    }
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL",
+    "dataSharing": "NONE"
+  },
+  "category": "Productivity"
+}

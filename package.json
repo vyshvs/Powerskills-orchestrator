@@ -1,0 +1,37 @@
+{
+  "name": "powerskills-memory-orchestrator",
+  "version": "1.0.0",
+  "description": "Advanced plugin with memory reader/writer sub-agent that records everything from start to end, compatible with OpenAI, Claude, and Antigravity",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/test-suite.js",
+    "start": "node examples/basic-usage.js",
+    "demo": "node examples/demo.js"
+  },
+  "keywords": [
+    "memory",
+    "orchestrator",
+    "sub-agent",
+    "openai",
+    "claude",
+    "antigravity",
+    "ai",
+    "plugin",
+    "powerskills"
+  ],
+  "author": "PowerSkills Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powerskills/memory-orchestrator"
+  },
+  "bugs": {
+    "url": "https://github.com/powerskills/memory-orchestrator/issues"
+  },
+  "homepage": "https://github.com/powerskills/memory-orchestrator#readme"
+}
