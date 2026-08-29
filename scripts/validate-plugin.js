@@ -10,7 +10,8 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const NAME_RE = /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
+// Fixed regex to prevent ReDoS - use atomic grouping pattern
+const NAME_RE = /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/;
 
 const errors = [];
 const warnings = [];

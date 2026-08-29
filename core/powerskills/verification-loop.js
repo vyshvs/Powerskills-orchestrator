@@ -315,15 +315,29 @@ class VerificationLoop {
   }
 
   async fixMissingModule(error, code) {
-    // Extract module name
-    const match = error.message.match(/cannot find module ['"]([^'"]+)['"]/i);
+    // Extract module name - Fixed regex to prevent ReDoS
+    const match = error.message.match(/cannot find module ['"]([^'"]{1,200})['"]/i);
     if (match) {
       const moduleName = match[1];
+
+      // Validate module name to prevent command injection
+      if (!/^[@a-z0-9][a-z0-9-_./@]*$/i.test(moduleName)) {
+        this.plugin.memoryEngine.log('TROUBLESHOOT', 'Invalid module name detected', {
+          module: moduleName
+        });
+        return code;
+      }
 
       this.plugin.memoryEngine.log('TROUBLESHOOT', `Installing missing module: ${moduleName}`);
 
       try {
-        await execAsync(`npm install ${moduleName}`);
+        // Use spawn instead of exec to prevent command injection
+        const { spawn } = require('child_process');
+        await new Promise((resolve, reject) => {
+          const proc = spawn('npm', ['install', moduleName], { shell: false });
+          proc.on('close', (code) => code === 0 ? resolve() : reject(new Error(`npm install failed with code ${code}`)));
+          proc.on('error', reject);
+        });
         return code; // Code unchanged, module installed
       } catch (installError) {
         this.plugin.memoryEngine.log('TROUBLESHOOT', 'Failed to install module', {

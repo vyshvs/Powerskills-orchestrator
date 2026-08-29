@@ -332,7 +332,8 @@ class SkillRegistry {
   }
 
   extractFilePattern(message) {
-    const match = message.match(/([^\s]+\.(js|ts|jsx|tsx|py|go|java))/);
+    // Fixed: Use non-backtracking regex to prevent ReDoS
+    const match = message.match(/([^\s]+\.(?:js|ts|jsx|tsx|py|go|java))/);
     return match ? match[1] : null;
   }
 

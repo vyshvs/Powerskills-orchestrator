@@ -39,10 +39,10 @@ class SkillConverter {
     triggers.push(name);
 
     // From "When to Activate" section
-    const activateMatch = content.match(/## When to Activate\n([\s\S]*?)(?=\n##|$)/);
+    const activateMatch = content.match(/## When to Activate\n([\s\S]{0,5000}?)(?=\n##|$)/);
     if (activateMatch) {
       const text = activateMatch[1].toLowerCase();
-      const keywords = text.match(/"([^"]+)"/g);
+      const keywords = text.match(/"([^"]{1,100})"/g);
       if (keywords) {
         keywords.forEach(k => triggers.push(k.replace(/"/g, '')));
       }

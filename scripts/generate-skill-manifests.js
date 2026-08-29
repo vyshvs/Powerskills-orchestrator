@@ -6,7 +6,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const SKILLS_DIR = path.join(__dirname, '..', 'core', 'powerskills', 'skills');
 const OUTPUT_DIR = path.join(__dirname, '..', 'skills');
 
 // Skill metadata extracted from files
