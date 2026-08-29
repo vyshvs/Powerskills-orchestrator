@@ -3,9 +3,10 @@
  * Output testing, log analysis, and auto-troubleshooting
  */
 
-const { exec } = require('child_process');
+const { exec, execFile } = require('child_process');
 const { promisify } = require('util');
 const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 class VerificationLoop {
   constructor(plugin) {
@@ -167,7 +168,7 @@ class VerificationLoop {
 
   async runPython(code) {
     try {
-      const { stdout, stderr } = await execAsync(`python -c "${code.replace(/"/g, '\\"')}"`);
+      const { stdout, stderr } = await execFileAsync('python', ['-c', code]);
       return {
         stdout,
         stderr,
