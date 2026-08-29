@@ -331,14 +331,12 @@ class MCPBrokerIntegration {
     const { broker, connection } = this.connectedBrokers.get(brokerId);
 
     try {
-      let result;
-
       if (broker.protocol === 'mcp') {
-        result = await this._cancelOrderMCP(connection, orderId);
+        await this._cancelOrderMCP(connection, orderId);
       } else if (broker.protocol === 'rest') {
-        result = await this._cancelOrderREST(connection, broker, orderId);
+        await this._cancelOrderREST(connection, broker, orderId);
       } else if (broker.protocol === 'unofficial') {
-        result = await this._cancelOrderUnofficial(connection, broker, orderId);
+        await this._cancelOrderUnofficial(connection, broker, orderId);
       }
 
       this.plugin.emit('order-cancelled', { brokerId, orderId });
