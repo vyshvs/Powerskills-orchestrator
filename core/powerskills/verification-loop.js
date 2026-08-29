@@ -109,7 +109,8 @@ class VerificationLoop {
 
   async runNode(code) {
     try {
-      const { stdout, stderr } = await execAsync(`node -e "${code.replace(/"/g, '\\"')}"`);
+      // Use array syntax to prevent command injection
+      const { stdout, stderr } = await execAsync('node', ['-e', code]);
       return {
         stdout,
         stderr,
@@ -167,7 +168,8 @@ class VerificationLoop {
 
   async runPython(code) {
     try {
-      const { stdout, stderr } = await execAsync(`python -c "${code.replace(/"/g, '\\"')}"`);
+      // Use array syntax to prevent command injection
+      const { stdout, stderr } = await execAsync('python', ['-c', code]);
       return {
         stdout,
         stderr,

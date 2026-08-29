@@ -99,8 +99,8 @@ class MarketContextProvider {
       const sma50 = this.calculateSMA(prices, 50);
       const sma200 = this.calculateSMA(prices, 200);
 
-      let regime = 'sideways';
-      let confidence = 0.5;
+      let regime;
+      let confidence;
 
       // Bull: price > SMA50 > SMA200
       if (current > sma50 && sma50 > sma200) {

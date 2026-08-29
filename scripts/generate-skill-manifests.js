@@ -261,17 +261,20 @@ function main() {
   Object.entries(skillMetadata).forEach(([skillName, metadata]) => {
     const outputPath = path.join(OUTPUT_DIR, `${skillName}.md`);
 
-    // Check if already exists
-    if (fs.existsSync(outputPath)) {
-      console.log(`⏭️  Skipped: ${skillName} (already exists)`);
-      skipped++;
-      return;
+    // Use exclusive file creation flag to prevent race condition
+    try {
+      const manifest = generateSkillManifest(skillName, metadata);
+      fs.writeFileSync(outputPath, manifest, { encoding: 'utf8', flag: 'wx' });
+      console.log(`✅ Created: ${skillName}`);
+      created++;
+    } catch (error) {
+      if (error.code === 'EEXIST') {
+        console.log(`⏭️  Skipped: ${skillName} (already exists)`);
+        skipped++;
+      } else {
+        throw error;
+      }
     }
-
-    const manifest = generateSkillManifest(skillName, metadata);
-    fs.writeFileSync(outputPath, manifest, 'utf8');
-    console.log(`✅ Created: ${skillName}`);
-    created++;
   });
 
   console.log(`\n📊 Summary:`);

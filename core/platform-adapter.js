@@ -124,7 +124,8 @@ class PlatformAdapter {
         id: `req_${Date.now()}`,
         timestamp: Date.now(),
         // Don't include full body which may contain API keys
-        url: url.replace(/\/\/[^@]+@/, '//***@'), // Mask credentials in URL
+        // Mask credentials in URL - fixed regex to prevent ReDoS
+        url: url.replace(/\/\/[^@]*@/, '//***@'),
         method
       }
     };

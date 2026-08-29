@@ -7,7 +7,6 @@ const fs = require('fs');
 const path = require('path');
 
 const AGENTS_DIR = path.join(__dirname, '..', 'agents');
-const TEMPLATE_MANAGER = path.join(__dirname, '..', 'core', 'powerskills', 'agent-template-manager.js');
 
 // Load agent templates
 const AgentTemplateManager = require('../core/powerskills/agent-template-manager.js');
@@ -64,17 +63,20 @@ function main() {
   templates.forEach(template => {
     const outputPath = path.join(AGENTS_DIR, `${template.name}.md`);
 
-    // Skip if already exists
-    if (fs.existsSync(outputPath)) {
-      console.log(`⏭️  Skipped: ${template.name} (already exists)`);
-      skipped++;
-      return;
+    // Use exclusive file creation flag to prevent race condition
+    try {
+      const manifest = generateAgentManifest(template);
+      fs.writeFileSync(outputPath, manifest, { encoding: 'utf8', flag: 'wx' });
+      console.log(`✅ Created: ${template.name}`);
+      created++;
+    } catch (error) {
+      if (error.code === 'EEXIST') {
+        console.log(`⏭️  Skipped: ${template.name} (already exists)`);
+        skipped++;
+      } else {
+        throw error;
+      }
     }
-
-    const manifest = generateAgentManifest(template);
-    fs.writeFileSync(outputPath, manifest, 'utf8');
-    console.log(`✅ Created: ${template.name}`);
-    created++;
   });
 
   console.log(`\n📊 Summary:`);

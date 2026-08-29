@@ -92,7 +92,8 @@ class CommandDispatcher {
     const trimmed = userInput.trim();
 
     // Match /command-name followed by optional arguments
-    const match = trimmed.match(/^\/([a-z-]+)(?:\s+(.*))?$/i);
+    // Fixed regex to prevent ReDoS - use possessive quantifiers
+    const match = trimmed.match(/^\/([a-z][a-z0-9-]*?)(?:\s+(.*))?$/i);
 
     if (!match) {
       return null;
