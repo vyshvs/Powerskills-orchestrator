@@ -109,19 +109,33 @@ class VerificationLoop {
 
   async runNode(code) {
     try {
-      // Use array syntax to prevent command injection
-      const { stdout, stderr } = await execAsync('node', ['-e', code]);
+      // Use spawn to prevent command injection - execAsync doesn't support array syntax
+      const { spawn } = require('child_process');
+      const result = await new Promise((resolve, reject) => {
+        const proc = spawn('node', ['-e', code], { shell: false });
+        let stdout = '';
+        let stderr = '';
+
+        proc.stdout.on('data', (data) => { stdout += data.toString(); });
+        proc.stderr.on('data', (data) => { stderr += data.toString(); });
+
+        proc.on('close', (exitCode) => {
+          resolve({ stdout, stderr, exitCode });
+        });
+        proc.on('error', reject);
+      });
+
       return {
-        stdout,
-        stderr,
-        exitCode: 0,
+        stdout: result.stdout,
+        stderr: result.stderr,
+        exitCode: result.exitCode,
         type: 'node'
       };
     } catch (error) {
       return {
-        stdout: error.stdout || '',
-        stderr: error.stderr || error.message,
-        exitCode: error.code || 1,
+        stdout: '',
+        stderr: error.message,
+        exitCode: 1,
         type: 'node'
       };
     }
@@ -168,19 +182,33 @@ class VerificationLoop {
 
   async runPython(code) {
     try {
-      // Use array syntax to prevent command injection
-      const { stdout, stderr } = await execAsync('python', ['-c', code]);
+      // Use spawn to prevent command injection - execAsync doesn't support array syntax
+      const { spawn } = require('child_process');
+      const result = await new Promise((resolve, reject) => {
+        const proc = spawn('python', ['-c', code], { shell: false });
+        let stdout = '';
+        let stderr = '';
+
+        proc.stdout.on('data', (data) => { stdout += data.toString(); });
+        proc.stderr.on('data', (data) => { stderr += data.toString(); });
+
+        proc.on('close', (exitCode) => {
+          resolve({ stdout, stderr, exitCode });
+        });
+        proc.on('error', reject);
+      });
+
       return {
-        stdout,
-        stderr,
-        exitCode: 0,
+        stdout: result.stdout,
+        stderr: result.stderr,
+        exitCode: result.exitCode,
         type: 'python'
       };
     } catch (error) {
       return {
-        stdout: error.stdout || '',
-        stderr: error.stderr || error.message,
-        exitCode: error.code || 1,
+        stdout: '',
+        stderr: error.message,
+        exitCode: 1,
         type: 'python'
       };
     }
