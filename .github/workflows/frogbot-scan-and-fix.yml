@@ -5,11 +5,14 @@
 name: "Frogbot Scan and Fix"
 
 on:
-  push:
-    branches: [ main ]
-  schedule:
-    # Run weekly on Monday at 00:00 UTC
-    - cron: '0 0 * * 1'
+  # Disabled: Project has zero dependencies, Frogbot requires JFrog credentials
+  # Re-enable by uncommenting below if dependencies are added
+  workflow_dispatch:  # Manual trigger only
+  # push:
+  #   branches: [ main ]
+  # schedule:
+  #   # Run weekly on Monday at 00:00 UTC
+  #   - cron: '0 0 * * 1'
 
 permissions:
   contents: write
