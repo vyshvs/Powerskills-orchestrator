@@ -3,7 +3,7 @@
  * Output testing, log analysis, and auto-troubleshooting
  */
 
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const { promisify } = require('util');
 const execAsync = promisify(exec);
 
@@ -108,22 +108,39 @@ class VerificationLoop {
   }
 
   async runNode(code) {
-    try {
-      const { stdout, stderr } = await execAsync(`node -e "${code.replace(/"/g, '\\"')}"`);
-      return {
-        stdout,
-        stderr,
-        exitCode: 0,
-        type: 'node'
-      };
-    } catch (error) {
-      return {
-        stdout: error.stdout || '',
-        stderr: error.stderr || error.message,
-        exitCode: error.code || 1,
-        type: 'node'
-      };
-    }
+    return await new Promise((resolve) => {
+      const child = spawn('node', [], { stdio: ['pipe', 'pipe', 'pipe'] });
+      let stdout = '';
+      let stderr = '';
+
+      child.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+
+      child.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      child.on('error', (error) => {
+        resolve({
+          stdout,
+          stderr: stderr || error.message,
+          exitCode: 1,
+          type: 'node'
+        });
+      });
+
+      child.on('close', (code) => {
+        resolve({
+          stdout,
+          stderr,
+          exitCode: code || 0,
+          type: 'node'
+        });
+      });
+
+      child.stdin.end(code);
+    });
   }
 
   async runBash(code) {
