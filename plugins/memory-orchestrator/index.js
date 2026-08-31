@@ -12,8 +12,6 @@
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { promises as fs } from 'fs';
-import { createReadStream } from 'fs';
-import { createInterface } from 'readline';
 import QodoIntegration from './qodo-integration.js';
 
 const __filename = fileURLToPath(import.meta.url);
