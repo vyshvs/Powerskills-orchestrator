@@ -17,6 +17,7 @@
     "skills/powerskills-orchestrator",
     "skills/memory-manager",
     "skills/token-budget-estimator",
-    "skills/output-verifier"
+    "skills/output-verifier",
+    "skills/ultra-orchestrator"
   ]
 }
