@@ -24,7 +24,7 @@ export class QodoIntegration {
    */
   async isQodoAvailable() {
     return new Promise((resolve) => {
-      const proc = spawn('which', ['qodo'], { shell: true });
+      const proc = spawn('which', ['qodo'], { shell: false });
       proc.on('close', (code) => resolve(code === 0));
       proc.on('error', () => resolve(false));
     });
@@ -165,7 +165,7 @@ export class QodoIntegration {
     return new Promise((resolve) => {
       const [command, ...args] = this.config.testCommand.split(' ');
       const proc = spawn(command, args, {
-        shell: true,
+        shell: false,
         stdio: 'inherit'
       });
 
