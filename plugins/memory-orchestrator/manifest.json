@@ -1,0 +1,82 @@
+{
+  "name": "memory-orchestrator",
+  "version": "1.0.0",
+  "title": "Memory Orchestrator",
+  "description": "Powerful plugin with memory reader/writer, sub-agent orchestration, and multi-platform compatibility",
+  "author": "vyshvs",
+  "homepage": "https://github.com/vyshvs/Powerskills-orchestrator",
+  "compatibility": {
+    "platforms": ["claude", "openai", "antigravity"],
+    "minimumVersion": "1.0.0"
+  },
+  "capabilities": [
+    "memory-management",
+    "phase-tracking",
+    "sub-agent-orchestration",
+    "workflow-execution",
+    "auto-tool-discovery",
+    "multi-platform-support",
+    "scaffolding-management",
+    "comprehensive-reporting"
+  ],
+  "commands": {
+    "init": {
+      "description": "Initialize Memory Orchestrator",
+      "usage": "memory-orchestrator init [--platform <name>]"
+    },
+    "phase": {
+      "description": "Manage phases",
+      "subcommands": ["start", "complete", "list"]
+    },
+    "memory": {
+      "description": "Manage memory entries",
+      "subcommands": ["write", "read"]
+    },
+    "agent": {
+      "description": "Manage sub-agents",
+      "subcommands": ["create", "complete", "list"]
+    },
+    "scaffold": {
+      "description": "Manage scaffolding",
+      "subcommands": ["create", "teardown", "list"]
+    },
+    "complete": {
+      "description": "Mark everything completed"
+    },
+    "report": {
+      "description": "Generate comprehensive report"
+    }
+  },
+  "files": {
+    "main": "index.js",
+    "cli": "cli.js",
+    "adapters": "adapters.js",
+    "workflow": "workflow.js"
+  },
+  "dependencies": {},
+  "hooks": {
+    "onPhaseStart": "Triggered when a phase starts",
+    "onPhaseComplete": "Triggered when a phase completes",
+    "onMemoryWrite": "Triggered when memory is written",
+    "onSubAgentCreate": "Triggered when sub-agent is created",
+    "onWorkflowComplete": "Triggered when workflow completes"
+  },
+  "config": {
+    "memoryDir": {
+      "type": "string",
+      "default": ".memory",
+      "description": "Directory for storing memory entries"
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["claude", "openai", "antigravity"],
+      "default": "claude",
+      "description": "Target platform"
+    },
+    "autoSkillPick": {
+      "type": "boolean",
+      "default": true,
+      "description": "Automatically pick available skills/plugins/MCPs"
+    }
+  }
+}

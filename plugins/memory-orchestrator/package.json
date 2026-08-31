@@ -1,0 +1,20 @@
+{
+  "name": "@powerskills/memory-orchestrator",
+  "version": "1.0.0",
+  "description": "Powerful plugin with memory reader/writer, sub-agent orchestration, and multi-platform compatibility",
+  "main": "index.js",
+  "type": "module",
+  "keywords": [
+    "claude",
+    "openai",
+    "antigravity",
+    "memory",
+    "orchestrator",
+    "plugin"
+  ],
+  "author": "vyshvs",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
